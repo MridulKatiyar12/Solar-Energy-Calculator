@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solar Panel Plans in India</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('img/carousel-2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #fff;
+    }
+    .card {
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #000;
+      border: none;
+      border-radius: 15px;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .select-btn {
+      background-color: #0d6efd;
+      border: none;
+      color: white;
+    }
+    .select-btn:hover {
+      background-color: #084298;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-5">
+    <h1 class="text-center mb-5">Explore Our Solar Panel Plans</h1>
+    <div class="row g-4">
+
+      <!-- Plan 1 -->
+      <div class="col-md-4">
+        <div class="card p-3 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Basic Residential Plan</h5>
+            <p class="card-text">1kW System - Ideal for small homes.</p>
+            <ul>
+              <li>Price: ₹70,000</li>
+              <li>Power Output: ~4 units/day</li>
+              <li>Warranty: 25 years</li>
+            </ul>
+            <button class="btn select-btn w-100" onclick="selectPlan('Basic Residential Plan', '₹70,000', '4 units/day', '25 years')">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan 2 -->
+      <div class="col-md-4">
+        <div class="card p-3 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Standard Family Plan</h5>
+            <p class="card-text">3kW System - Suits 2BHK homes and small businesses.</p>
+            <ul>
+              <li>Price: ₹1,80,000</li>
+              <li>Power Output: ~12 units/day</li>
+              <li>Warranty: 25 years</li>
+            </ul>
+            <button class="btn select-btn w-100" onclick="selectPlan('Standard Family Plan', '₹1,80,000', '12 units/day', '25 years')">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan 3 -->
+      <div class="col-md-4">
+        <div class="card p-3 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Premium Home Plan</h5>
+            <p class="card-text">5kW System - Best for villas and larger homes.</p>
+            <ul>
+              <li>Price: ₹2,90,000</li>
+              <li>Power Output: ~20 units/day</li>
+              <li>Warranty: 25 years</li>
+            </ul>
+            <button class="btn select-btn w-100" onclick="selectPlan('Premium Home Plan', '₹2,90,000', '20 units/day', '25 years')">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan 4 -->
+      <div class="col-md-4">
+        <div class="card p-3 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Commercial Starter Plan</h5>
+            <p class="card-text">10kW System - For small commercial units.</p>
+            <ul>
+              <li>Price: ₹5,80,000</li>
+              <li>Power Output: ~40 units/day</li>
+              <li>Warranty: 25 years</li>
+            </ul>
+            <button class="btn select-btn w-100" onclick="selectPlan('Commercial Starter Plan', '₹5,80,000', '40 units/day', '25 years')">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan 5 -->
+      <div class="col-md-4">
+        <div class="card p-3 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Industrial Solar Plan</h5>
+            <p class="card-text">25kW System - Designed for factories and plants.</p>
+            <ul>
+              <li>Price: ₹14,50,000</li>
+              <li>Power Output: ~100 units/day</li>
+              <li>Warranty: 25 years</li>
+            </ul>
+            <button class="btn select-btn w-100" onclick="selectPlan('Industrial Solar Plan', '₹14,50,000', '100 units/day', '25 years')">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan 6 -->
+      <div class="col-md-4">
+        <div class="card p-3 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Government Subsidy Plan</h5>
+            <p class="card-text">3kW System with MNRE subsidy benefits.</p>
+            <ul>
+              <li>Price: ₹1,20,000 (after subsidy)</li>
+              <li>Power Output: ~12 units/day</li>
+              <li>Warranty: 25 years</li>
+            </ul>
+            <button class="btn select-btn w-100" onclick="selectPlan('Government Subsidy Plan', '₹1,20,000', '12 units/day', '25 years')">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function selectPlan(planName, price, units, warranty) {
+      fetch('/api/select-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planName, price, units, warranty })
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = 'custom-quote.html';
+        } else {
+          alert('Failed to select plan. Try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Server error occurred.');
+      });
+    }
+  </script>
+</body>
+</html>
