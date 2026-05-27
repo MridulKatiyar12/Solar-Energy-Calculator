@@ -1,70 +1,64 @@
-// ===============================
-// GREEN SPARK ENERGY - SCRIPT.JS
-// ===============================
+
+// =====================
+// GREEN SPARK ENERGY SAFE JS
+// =====================
+
+let map = null;
+let marker = null;
 
 
-// -------------------------------
-// 1. INIT LEAFLET MAP
-// -------------------------------
-let map;
-let marker;
-
+// ---------------------
+// INIT MAP SAFELY
+// ---------------------
 function initMap() {
-    // Check if map div exists
+
     const mapContainer = document.getElementById("map");
+
     if (!mapContainer) {
-        console.error("Map container not found!");
+        console.warn("Map not found, skipping map init");
         return;
     }
 
-    // Initialize map
-    map = L.map('map').setView([28.6139, 77.2090], 13);
+    // If Leaflet not loaded
+    if (typeof L === "undefined") {
+        console.error("Leaflet library not loaded!");
+        return;
+    }
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    setTimeout(() => {
 
-    // Default marker
-    marker = L.marker([28.6139, 77.2090]).addTo(map)
-        .bindPopup("Select Your Rooftop Location")
-        .openPopup();
+        map = L.map('map').setView([28.6139, 77.2090], 13);
 
-    // Click event to move marker
-    map.on('click', function (e) {
-        const { lat, lng } = e.latlng;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
 
-        if (marker) {
-            marker.setLatLng([lat, lng]);
-        }
+        marker = L.marker([28.6139, 77.2090]).addTo(map)
+            .bindPopup("Green Spark Energy")
+            .openPopup();
 
-        marker.bindPopup(`Selected Location<br>Lat: ${lat.toFixed(5)}<br>Lng: ${lng.toFixed(5)}`).openPopup();
-    });
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
+
+    }, 300);
 }
 
 
-// -------------------------------
-// 2. GEOCODE ADDRESS (Basic API - Nominatim)
-// -------------------------------
+// ---------------------
+// GEOCODE ADDRESS
+// ---------------------
 async function geocodeAddress() {
-    const address = document.getElementById("address").value;
-
-    if (!address) {
-        alert("Please enter an address");
-        return;
-    }
 
     try {
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${address}`
-        );
 
-        const data = await response.json();
+        const address = document.getElementById("address").value;
+        if (!address) return alert("Enter address");
 
-        if (data.length === 0) {
-            alert("Location not found!");
-            return;
-        }
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`);
+        const data = await res.json();
+
+        if (!data.length) return alert("Location not found");
 
         const lat = data[0].lat;
         const lon = data[0].lon;
@@ -77,84 +71,53 @@ async function geocodeAddress() {
             marker = L.marker([lat, lon]).addTo(map);
         }
 
-        marker.bindPopup("Address Location").openPopup();
+        marker.bindPopup("Selected Location").openPopup();
 
-    } catch (error) {
-        console.error(error);
-        alert("Error finding location");
+    } catch (err) {
+        console.error(err);
+        alert("Geocode error");
     }
 }
 
 
-// -------------------------------
-// 3. SOLAR CALCULATION
-// -------------------------------
+// ---------------------
+// SOLAR CALCULATOR
+// ---------------------
 function calculateSolar() {
 
-    const name = document.getElementById('name')?.value || "";
-    const email = document.getElementById('email')?.value || "";
-    const phone = document.getElementById('phone')?.value || "";
-    const country = document.getElementById('country')?.value || "";
-    const address = document.getElementById('address')?.value || "";
-    const area = parseFloat(document.getElementById('area')?.value || 0);
+    const areaInput = document.getElementById("area");
+
+    if (!areaInput) return alert("Area input missing");
+
+    const area = parseFloat(areaInput.value);
 
     if (!area || area <= 0) {
-        alert("Please enter valid roof area");
-        return;
+        return alert("Enter valid roof area");
     }
 
-    // -------------------------------
-    // FORMULA (you can upgrade later)
-    // 1 sq.m = 0.15 kW
-    // cost = ₹50,000 per kW
-    // -------------------------------
-    const estimatedPower = area * 0.15;
-    const estimatedCost = estimatedPower * 50000;
+    const power = area * 0.15;
+    const cost = power * 50000;
 
-    // Send to backend (optional)
-    fetch('http://localhost:3000/api/calculator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            name,
-            email,
-            phone,
-            country,
-            address,
-            area,
-            estimatedPower,
-            estimatedCost
-        })
-    }).catch(err => console.warn("Backend not connected:", err));
-
-    // Show results
-    document.getElementById('results').innerHTML = `
-        <h3>☀️ Solar Calculation Result</h3>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Phone:</b> ${phone}</p>
-        <p><b>Country:</b> ${country}</p>
-        <p><b>Address:</b> ${address}</p>
-        <p><b>Roof Area:</b> ${area} sq.m</p>
-        <hr>
-        <p><b>Estimated Power:</b> ${estimatedPower.toFixed(2)} kW</p>
-        <p><b>Estimated Cost:</b> ₹${estimatedCost.toLocaleString()}</p>
+    document.getElementById("results").innerHTML = `
+        <h3>Solar Result</h3>
+        <p>Power: ${power.toFixed(2)} kW</p>
+        <p>Cost: ₹${cost.toLocaleString()}</p>
     `;
 }
 
 
-// -------------------------------
-// 4. QUOTE FORM REDIRECT FIX
-// -------------------------------
-function handleQuoteSubmit(event) {
-    event.preventDefault();
+// ---------------------
+// QUOTE FORM
+// ---------------------
+function handleQuoteSubmit(e) {
+    e.preventDefault();
     window.location.href = "plans.html";
 }
 
 
-// -------------------------------
-// 5. INITIALIZE WHEN PAGE LOADS
-// -------------------------------
-window.onload = function () {
+// ---------------------
+// INIT AFTER PAGE LOAD
+// ---------------------
+window.addEventListener("load", () => {
     initMap();
-};
+});
